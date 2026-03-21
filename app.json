@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "FixIt",
+    "slug": "fixit-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D0E14"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fixit.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D0E14"
+      },
+      "package": "com.fixit.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow FixIt to access your photos for post images and profile pictures."
+        }
+      ]
+    ]
+  }
+}
