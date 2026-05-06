@@ -1,4 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+
+import { 
+  registerForPushNotificationsAsync, 
+  savePushToken, 
+  clearPushToken 
+} from '../services/notificationService';
+
 import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext({});
@@ -8,6 +15,14 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // -- Push Notifications Async Effects ----------------------------------------
+  const handlePushToken = async (userId) => {
+  const token = await registerForPushNotificationsAsync();
+  if (token) {
+    await savePushToken(userId, token);
+  }
+};
+ 
   // ── fetch profile & skilled_profile for current user ──────────────────────
   const fetchProfile = async (userId) => {
     const { data, error } = await supabase

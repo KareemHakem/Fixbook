@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, KeyboardAvoidingView, Platform,
+  TouchableOpacity, KeyboardAvoidingView, Platform, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
@@ -33,7 +33,8 @@ export function LoginScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           {/* Logo */}
           <View style={styles.logoWrap}>
-            <Text style={styles.logo}>FIXIT</Text>
+            <Image source={require('../../../assets/icon.png')} style={styles.logoImage} resizeMode="contain" />
+             <Text style={styles.logo}>FIXBOOK</Text>
             <Text style={styles.tagline}>Home Repair Marketplace</Text>
           </View>
 
@@ -73,7 +74,8 @@ export function RegisterScreen({ navigation }) {
     if (password.length < 6)  { setError('Password must be at least 6 characters.'); return; }
     setError(''); setLoading(true);
     const { error: err } = await signUp({ email, password, fullName, role });
-    if (err) setError(err.message);
+    if (err) {setError(err.message);
+    console.log('Registration result:',  err );}
     setLoading(false);
   };
 
@@ -82,7 +84,7 @@ export function RegisterScreen({ navigation }) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <View style={styles.logoWrap}>
-            <Text style={styles.logo}>FIXIT</Text>
+            <Text style={styles.logo}>FIXBOOK</Text>
             <Text style={styles.tagline}>Create your account</Text>
           </View>
 
@@ -127,6 +129,7 @@ const styles = StyleSheet.create({
   safe:            { flex: 1, backgroundColor: colors.bg },
   container:       { padding: spacing.lg, paddingTop: spacing.xl },
   logoWrap:        { alignItems: 'center', marginBottom: spacing.xl },
+  logoImage:       { width: 120, height: 120 },
   logo:            { fontSize: 52, fontWeight: '900', color: colors.primary, letterSpacing: 4 },
   tagline:         { color: colors.textMuted, fontSize: 14, marginTop: 4 },
   roleLabel:       { ...typography.label, color: colors.textMuted, marginBottom: spacing.sm },

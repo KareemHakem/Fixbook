@@ -55,7 +55,7 @@ export default function PostCard({ post, onPress }) {
         <View style={styles.offersBadge}>
           <Ionicons name="chatbubble-outline" size={13} color={colors.info} />
           <Text style={[styles.metaText, { color: colors.info, marginLeft: 3 }]}>
-            {post.offers_count || 0} offer{post.offers_count !== 1 ? 's' : ''}
+            {Math.max(0, post.offers_count || 0)} offer{Math.max(0, post.offers_count || 0) !== 1 ? 's' : ''}
           </Text>
         </View>
       </View>

@@ -4,8 +4,19 @@ node_modules
 /coverage
 /.vscode
 /.idea
-/.DS_Store
+.DS_Store
+**/.DS_Store
 *.log
 *.env
 *.lock
+
+# Expo / build artifacts
+.expo/
+.expo-shared/
+
+# Supabase CLI working state
+supabase/.temp/
+
+# Stray scaffold project
+/my-app/
 

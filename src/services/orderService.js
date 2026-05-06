@@ -71,8 +71,17 @@ export const updateOrderStatus = async (orderId, status) => {
     .update({ status })
     .eq('id', orderId)
     .select()
-    .single();
-  return { data, error };
+    .maybeSingle();
+
+  if (error) return { data: null, error };
+
+  // RLS may permit UPDATE but block the post-update SELECT, returning no row.
+  // Treat that as success so the caller can refetch instead of seeing a fake failure.
+  if (!data) {
+    return { data: { id: orderId, status }, error: null };
+  }
+
+  return { data, error: null };
 };
 
 // ── Admin: get all orders ──────────────────────────────────────────────────

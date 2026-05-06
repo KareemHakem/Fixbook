@@ -1,4 +1,4 @@
-# 🔧 FixIt — Home Repair Marketplace
+# 🔧 FixBook— Home Repair Marketplace
 
 A full-featured React Native mobile app connecting homeowners with skilled tradespeople. Built with **Expo** and **Supabase**.
 

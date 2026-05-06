@@ -109,11 +109,16 @@ export function PostDetailScreen({ route, navigation }) {
     const [{ data: p }, { data: o }] = await Promise.all([
       getPost(postId),
       getOffersForPost(postId),
-    ]);
+    ]).catch((err) => {
+      console.error('Error loading post details:', err);
+    
+    });
+    
+    console.log('Loaded offers:', o);
     if (p) setPost(p);
     if (o) setOffers(o);
 
-    if (profile?.role === 'normal' && p) {
+    if (profile?.role === 'normal' && p ) {
       const { data: ord } = await getActiveOrderForPost(postId, user.id);
       setActiveOrder(ord);
     }
@@ -124,12 +129,17 @@ export function PostDetailScreen({ route, navigation }) {
 
   // ── Offer submit ────────────────────────────────────────────────────────
   const handleOfferSubmit = async () => {
-    if (!offerDesc || !offerPrice) { setError('Fill description and price.'); return; }
+    if (!offerDesc || !offerPrice) { setError('Fill description and price.', console.log()) ; return; }
     setSaving(true); setError('');
     if (editingOffer) {
       await updateOffer(editingOffer.id, { description: offerDesc, price: parseFloat(offerPrice) });
     } else {
-      await createOffer({ postId, skilledUserId: user.id, description: offerDesc, price: parseFloat(offerPrice) });
+      try {
+        console.log('Creating offer with:', { postId, skilledUserId: user.id, description: offerDesc, price: parseFloat(offerPrice) });
+        await createOffer({ postId, skilledUserId: user.id, description: offerDesc, price: parseFloat(offerPrice) });
+      } catch (error) {
+        console.error('Error creating offer:', error);
+      }
     }
     setOfferForm(false); setEditingOffer(null); setOfferDesc(''); setOfferPrice('');
     setSaving(false); load();
@@ -274,7 +284,7 @@ export function CreatePostScreen({ route, navigation }) {
     if (imageUri && imageUri !== editPost?.image_url) {
       const ext = imageUri.split('.').pop() || 'jpg';
       const { url, error: uploadErr } = await uploadPostImage(user.id, imageUri, ext);
-      if (uploadErr) { setError('Image upload failed.'); setLoading(false); return; }
+      if (uploadErr) { setError(`Image upload failed: ${uploadErr.message || JSON.stringify(uploadErr)}`); setLoading(false); return; }
       imageUrl = url;
     }
 

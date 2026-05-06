@@ -6,8 +6,14 @@ export const getOffersForPost = async (postId) => {
     .from('offers')
     .select(`
       *,
-      skilled_user:profiles!offers_skilled_user_id_fkey(id, full_name, avatar_url, phone, address),
-      skilled_profiles!inner(rating, review_count, skills, bio)
+      skilled_user:profiles!offers_skilled_user_id_fkey(
+        id,
+        full_name,
+        avatar_url,
+        phone,
+        address,
+        skilled_profiles(rating, review_count, skills, bio)
+      )
     `)
     .eq('post_id', postId)
     .order('created_at', { ascending: false });

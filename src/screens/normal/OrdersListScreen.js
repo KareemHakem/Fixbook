@@ -42,20 +42,23 @@ export function OrdersListScreen({ navigation }) {
       { text: 'Yes', onPress: onConfirm },
     ]);
 
+  const runStatusUpdate = async (order, status) => {
+    const { error } = await updateOrderStatus(order.id, status);
+    if (error) {
+      Alert.alert('Could not update order', error.message || 'Unknown error');
+      return;
+    }
+    load();
+  };
+
   const handleAccept = (order) =>
-    confirmAction('Accept this order?', async () => {
-      await updateOrderStatus(order.id, 'accepted'); load();
-    });
+    confirmAction('Accept this order?',  () => runStatusUpdate(order, 'accepted'));
 
   const handleDecline = (order) =>
-    confirmAction('Decline this order?', async () => {
-      await updateOrderStatus(order.id, 'declined'); load();
-    });
+    confirmAction('Decline this order?', () => runStatusUpdate(order, 'declined'));
 
   const handleComplete = (order) =>
-    confirmAction('Mark this job as completed?', async () => {
-      await updateOrderStatus(order.id, 'completed'); load();
-    });
+    confirmAction('Mark this job as completed?', () => runStatusUpdate(order, 'completed'));
 
   const handleReview = (order) =>
     navigation.navigate('LeaveReview', { order });

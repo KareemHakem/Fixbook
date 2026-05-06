@@ -3,7 +3,15 @@ import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 import { Ionicons } from '@expo/vector-icons';
+
+import * as Notifications from 'expo-notifications';
+import { useRef, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native'; 
+import { createNavigationContainerRef } from '@react-navigation/native';
+
+
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/common';
 
@@ -31,6 +39,7 @@ import { spacing } from '../theme/index';
 
 const Stack = createNativeStackNavigator();
 const Tab   = createBottomTabNavigator();
+export const navigationRef = createNavigationContainerRef();
 
 // ── Shared screen options ────────────────────────────────────────────────────
 const screenOptions = {
@@ -182,10 +191,28 @@ function MainStack({ role }) {
 export function RootNavigator() {
   const { user, profile, loading } = useAuth();
 
+  useEffect(() => {
+  // Listen for notification taps
+  const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+    const data = response.notification.request.content.data;
+    
+    // When user taps notification, navigate to the correct chat
+    if (data?.chatId && navigationRef.isReady()) {
+      navigationRef.navigate('ChatDetail', {
+        chatId: data.chatId,
+        otherName: data.otherName,
+      });
+    }
+  });
+
+  // Clean up on unmount
+  return () => subscription.remove();
+}, []);
+
   if (loading) return <LoadingSpinner />;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       {!user ? (
         <AuthStack />
       ) : (

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FixIt",
-    "slug": "fixit-app",
+    "name": "FixBook",
+    "slug": "fixbook-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,14 +13,17 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.fixit.app"
+      "bundleIdentifier": "com.fixbook.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D0E14"
       },
-      "package": "com.fixit.app"
+      "package": "com.fixbook.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -29,9 +32,16 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow FixIt to access your photos for post images and profile pictures."
+          "photosPermission": "Allow FixBook to access your photos for post images and profile pictures."
         }
-      ]
-    ]
+      ],
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "d0f9303f-d92c-4564-baf1-759bd99d00e7"
+      }
+    },
+    "owner": "kareem_abdelrahman"
   }
 }

@@ -4,14 +4,20 @@ import { supabase } from '../lib/supabase';
 export const getPosts = async (filters = {}) => {
   let query = supabase
     .from('posts')
-    .select('*, profiles(id, full_name, avatar_url)')
+    .select('*, profiles(id, full_name, avatar_url), offers(count)')
     .order('created_at', { ascending: false });
 
   if (filters.status)   query = query.eq('status', filters.status);
   if (filters.userId)   query = query.eq('user_id', filters.userId);
 
   const { data, error } = await query;
-  return { data, error };
+  if (error) return { data, error };
+
+  const normalized = data?.map((p) => ({
+    ...p,
+    offers_count: p.offers?.[0]?.count ?? p.offers_count ?? 0,
+  }));
+  return { data: normalized, error };
 };
 
 // ── Fetch single post ──────────────────────────────────────────────────────
@@ -36,13 +42,13 @@ export const createPost = async ({ userId, title, description, imageUrl }) => {
 
 // ── Upload post image ──────────────────────────────────────────────────────
 export const uploadPostImage = async (userId, fileUri, fileExt = 'jpg') => {
-  const fileName = `${userId}/${Date.now()}.${fileExt}`;
-  const response = await fetch(fileUri);
-  const blob     = await response.blob();
+  const fileName    = `${userId}/${Date.now()}.${fileExt}`;
+  const response    = await fetch(fileUri);
+  const arrayBuffer = await response.arrayBuffer();
 
   const { error: uploadError } = await supabase.storage
     .from('post-images')
-    .upload(fileName, blob, { contentType: `image/${fileExt}` });
+    .upload(fileName, arrayBuffer, { contentType: `image/${fileExt}` });
 
   if (uploadError) return { error: uploadError };
 
