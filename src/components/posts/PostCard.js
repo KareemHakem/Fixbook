@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card, Badge, Avatar } from '../common';
 import { colors } from '../../theme/colors';
 import { typography, spacing, radius } from '../../theme/index';
+import { useTranslation } from '../../context/LanguageContext';
 
 const CATEGORY_ICONS = {
   'Electrician':       'flash-outline',
@@ -19,7 +20,9 @@ const CATEGORY_ICONS = {
 };
 
 export default function PostCard({ post, onPress }) {
+  const { t } = useTranslation();
   const icon = CATEGORY_ICONS[post.category] || 'construct-outline';
+  const count = Math.max(0, post.offers_count || 0);
 
   return (
     <Card onPress={onPress} style={styles.card}>
@@ -37,7 +40,7 @@ export default function PostCard({ post, onPress }) {
           <Text style={styles.title} numberOfLines={1}>{post.title}</Text>
           <View style={styles.meta}>
             <Ionicons name="time-outline" size={12} color={colors.textFaint} />
-            <Text style={styles.metaText}>{formatDate(post.created_at)}</Text>
+            <Text style={styles.metaText}>{formatDate(post.created_at, t)}</Text>
           </View>
         </View>
         <Badge status={post.status} />
@@ -55,7 +58,7 @@ export default function PostCard({ post, onPress }) {
         <View style={styles.offersBadge}>
           <Ionicons name="chatbubble-outline" size={13} color={colors.info} />
           <Text style={[styles.metaText, { color: colors.info, marginLeft: 3 }]}>
-            {Math.max(0, post.offers_count || 0)} offer{Math.max(0, post.offers_count || 0) !== 1 ? 's' : ''}
+            {t(count === 1 ? 'posts.offersCountOne' : 'posts.offersCountOther', { n: count })}
           </Text>
         </View>
       </View>
@@ -63,15 +66,15 @@ export default function PostCard({ post, onPress }) {
   );
 }
 
-function formatDate(ts) {
+function formatDate(ts, t) {
   if (!ts) return '';
   const d = new Date(ts);
   const now = new Date();
   const diff = Math.floor((now - d) / 1000);
-  if (diff < 60)       return 'just now';
-  if (diff < 3600)     return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400)    return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 60)       return t('common.justNow');
+  if (diff < 3600)     return t('common.minutesAgo', { n: Math.floor(diff / 60) });
+  if (diff < 86400)    return t('common.hoursAgo',   { n: Math.floor(diff / 3600) });
+  return t('common.daysAgo', { n: Math.floor(diff / 86400) });
 }
 
 const styles = StyleSheet.create({

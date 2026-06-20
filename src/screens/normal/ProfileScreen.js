@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import {
   Button, Input, Card, Avatar, Badge, StarRating,
   Divider, LoadingSpinner, SectionHeader, ErrorBanner,
@@ -24,6 +25,7 @@ const ALL_SKILLS = [
 
 export function ProfileScreen({ navigation }) {
   const { user, profile, signOut, refreshProfile } = useAuth();
+  const { t, language, changeLanguage, supported } = useTranslation();
   const isSkilled  = profile?.role === 'skilled';
   const sp         = profile?.skilled_profiles;
 
@@ -56,14 +58,14 @@ export function ProfileScreen({ navigation }) {
     setLoading(true);
     const ext = result.assets[0].uri.split('.').pop() || 'jpg';
     const { url, error: uploadErr } = await uploadAvatar(user.id, result.assets[0].uri, ext);
-    if (uploadErr) { Alert.alert('Upload failed', uploadErr.message); setLoading(false); return; }
+    if (uploadErr) { Alert.alert(t('profile.uploadFailed'), uploadErr.message); setLoading(false); return; }
     await updateProfile(user.id, { avatar_url: url });
     await refreshProfile();
     setLoading(false);
   };
 
   const handleSave = async () => {
-    if (!fullName.trim()) { setError('Full name is required.'); return; }
+    if (!fullName.trim()) { setError(t('profile.fullNameRequired')); return; }
     setLoading(true); setError('');
     await updateProfile(user.id, { full_name: fullName.trim(), phone: phone.trim(), address: address.trim() });
     if (isSkilled) {
@@ -75,9 +77,9 @@ export function ProfileScreen({ navigation }) {
   };
 
   const handleSignOut = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: signOut },
+    Alert.alert(t('profile.signOut'), t('profile.signOutConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('profile.signOut'), style: 'destructive', onPress: signOut },
     ]);
   };
 
@@ -114,14 +116,14 @@ export function ProfileScreen({ navigation }) {
         {/* Edit / Save buttons */}
         <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md }}>
           {!editing ? (
-            <Button title="Edit Profile" onPress={() => setEditing(true)} variant="outline" icon="pencil-outline" style={{ flex: 1 }} />
+            <Button title={t('profile.editProfile')} onPress={() => setEditing(true)} variant="outline" icon="pencil-outline" style={{ flex: 1 }} />
           ) : (
             <>
-              <Button title="Save" onPress={handleSave} loading={loading} style={{ flex: 1 }} />
-              <Button title="Cancel" onPress={() => { setEditing(false); setError(''); }} variant="ghost" style={{ flex: 1 }} />
+              <Button title={t('common.save')} onPress={handleSave} loading={loading} style={{ flex: 1 }} />
+              <Button title={t('common.cancel')} onPress={() => { setEditing(false); setError(''); }} variant="ghost" style={{ flex: 1 }} />
             </>
           )}
-          <Button title="Sign Out" onPress={handleSignOut} variant="danger" icon="log-out-outline" size="md" />
+          <Button title={t('profile.signOut')} onPress={handleSignOut} variant="danger" icon="log-out-outline" size="md" />
         </View>
 
         <ErrorBanner message={error} />
@@ -129,13 +131,13 @@ export function ProfileScreen({ navigation }) {
         {/* Profile fields */}
         {editing ? (
           <Card>
-            <Input label="Full Name"  value={fullName} onChangeText={setFullName} placeholder="Your full name"    icon="person-outline"   />
-            <Input label="Phone"      value={phone}    onChangeText={setPhone}    placeholder="+370 600 12345"    icon="call-outline"     keyboardType="phone-pad" />
-            <Input label="Address"    value={address}  onChangeText={setAddress}  placeholder="City, Country"     icon="location-outline" />
+            <Input label={t('profile.fullName')} value={fullName} onChangeText={setFullName} placeholder={t('auth.yourFullName')}             icon="person-outline"   />
+            <Input label={t('profile.phone')}    value={phone}    onChangeText={setPhone}    placeholder="+370 600 12345"                     icon="call-outline"     keyboardType="phone-pad" />
+            <Input label={t('profile.address')}  value={address}  onChangeText={setAddress}  placeholder={t('profile.addressPlaceholder')}    icon="location-outline" />
             {isSkilled && (
               <>
-                <Input label="Bio" value={bio} onChangeText={setBio} placeholder="Tell clients about yourself..." multiline numberOfLines={3} icon="information-circle-outline" />
-                <Text style={styles.label}>Skills</Text>
+                <Input label={t('profile.bio')} value={bio} onChangeText={setBio} placeholder={t('profile.bioPlaceholder')} multiline numberOfLines={3} icon="information-circle-outline" />
+                <Text style={styles.label}>{t('profile.skills')}</Text>
                 <View style={styles.skillsGrid}>
                   {ALL_SKILLS.map((s) => (
                     <TouchableOpacity
@@ -143,7 +145,7 @@ export function ProfileScreen({ navigation }) {
                       onPress={() => toggleSkill(s)}
                       style={[styles.skillChip, skills.includes(s) && styles.skillChipActive]}
                     >
-                      <Text style={[styles.skillText, skills.includes(s) && { color: colors.primary }]}>{s}</Text>
+                      <Text style={[styles.skillText, skills.includes(s) && { color: colors.primary }]}>{t(`profile.skillsList.${s}`)}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -152,19 +154,19 @@ export function ProfileScreen({ navigation }) {
           </Card>
         ) : (
           <Card>
-            <InfoRow icon="call-outline"     label="Phone"   value={profile.phone   || 'Not set'} />
-            <InfoRow icon="location-outline" label="Address" value={profile.address || 'Not set'} />
+            <InfoRow icon="call-outline"     label={t('profile.phone')}   value={profile.phone   || t('common.notSet')} />
+            <InfoRow icon="location-outline" label={t('profile.address')} value={profile.address || t('common.notSet')} />
             {isSkilled && sp && (
               <>
                 <Divider style={{ marginVertical: spacing.sm }} />
-                {sp.bio && <InfoRow icon="information-circle-outline" label="Bio" value={sp.bio} />}
+                {sp.bio && <InfoRow icon="information-circle-outline" label={t('profile.bio')} value={sp.bio} />}
                 {sp.skills?.length > 0 && (
                   <View>
-                    <Text style={styles.label}>Skills</Text>
+                    <Text style={styles.label}>{t('profile.skills')}</Text>
                     <View style={styles.skillsGrid}>
                       {sp.skills.map((s) => (
                         <View key={s} style={styles.skillBadge}>
-                          <Text style={styles.skillBadgeText}>{s}</Text>
+                          <Text style={styles.skillBadgeText}>{t(`profile.skillsList.${s}`)}</Text>
                         </View>
                       ))}
                     </View>
@@ -175,10 +177,26 @@ export function ProfileScreen({ navigation }) {
           </Card>
         )}
 
+        {/* Language switcher */}
+        <Card>
+          <Text style={styles.label}>{t('profile.language')}</Text>
+          <View style={styles.skillsGrid}>
+            {supported.map((lang) => (
+              <TouchableOpacity
+                key={lang.code}
+                onPress={() => changeLanguage(lang.code)}
+                style={[styles.skillChip, language === lang.code && styles.skillChipActive]}
+              >
+                <Text style={[styles.skillText, language === lang.code && { color: colors.primary }]}>{lang.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Card>
+
         {/* Reviews section (skilled only) */}
         {isSkilled && reviews.length > 0 && (
           <>
-            <SectionHeader title={`Reviews (${reviews.length})`} />
+            <SectionHeader title={t('profile.reviewsHeading', { count: reviews.length })} />
             {reviews.map((r) => (
               <Card key={r.id} style={{ marginBottom: spacing.sm }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>

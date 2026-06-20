@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import PostCard from '../../components/posts/PostCard';
 import OfferCard from '../../components/offers/OfferCard';
 import {
@@ -29,6 +30,7 @@ import { spacing, typography, radius } from '../../theme/index';
 // ─────────────────────────────────────────────────────────────────────────────
 export function PostsListScreen({ navigation }) {
   const { profile } = useAuth();
+  const { t } = useTranslation();
   const [posts,      setPosts]      = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -51,13 +53,13 @@ export function PostsListScreen({ navigation }) {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
       {/* Search bar */}
       <View style={styles.searchWrap}>
         <Ionicons name="search-outline" size={18} color={colors.textFaint} style={{ marginRight: 8 }} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search jobs..."
+          placeholder={t('posts.searchPlaceholder')}
           placeholderTextColor={colors.textFaint}
           value={search}
           onChangeText={setSearch}
@@ -72,7 +74,7 @@ export function PostsListScreen({ navigation }) {
         )}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); load(); }} tintColor={colors.primary} />}
-        ListEmptyComponent={<EmptyState icon="construct-outline" title="No jobs yet" subtitle="Be the first to post a repair job!" />}
+        ListEmptyComponent={<EmptyState icon="construct-outline" title={t('posts.noJobsTitle')} subtitle={t('posts.noJobsSubtitle')} />}
       />
 
       {profile?.role === 'normal' && (
@@ -90,6 +92,7 @@ export function PostsListScreen({ navigation }) {
 export function PostDetailScreen({ route, navigation }) {
   const { postId } = route.params;
   const { user, profile } = useAuth();
+  const { t } = useTranslation();
 
   const [post,         setPost]         = useState(null);
   const [offers,       setOffers]       = useState([]);
@@ -129,7 +132,7 @@ export function PostDetailScreen({ route, navigation }) {
 
   // ── Offer submit ────────────────────────────────────────────────────────
   const handleOfferSubmit = async () => {
-    if (!offerDesc || !offerPrice) { setError('Fill description and price.', console.log()) ; return; }
+    if (!offerDesc || !offerPrice) { setError(t('posts.fillDescAndPrice'), console.log()) ; return; }
     setSaving(true); setError('');
     if (editingOffer) {
       await updateOffer(editingOffer.id, { description: offerDesc, price: parseFloat(offerPrice) });
@@ -153,9 +156,9 @@ export function PostDetailScreen({ route, navigation }) {
   };
 
   const handleDeleteOffer = (offer) => {
-    Alert.alert('Delete Offer', 'Are you sure?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteOffer(offer.id); load(); } },
+    Alert.alert(t('posts.deleteOfferTitle'), t('posts.deleteOfferConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: async () => { await deleteOffer(offer.id); load(); } },
     ]);
   };
 
@@ -172,9 +175,9 @@ export function PostDetailScreen({ route, navigation }) {
 
   // ── Delete post ─────────────────────────────────────────────────────────
   const handleDeletePost = () => {
-    Alert.alert('Delete Post', 'Delete this post?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deletePost(postId); navigation.goBack(); } },
+    Alert.alert(t('posts.deletePostTitle'), t('posts.deletePostConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: async () => { await deletePost(postId); navigation.goBack(); } },
     ]);
   };
 
@@ -208,36 +211,36 @@ export function PostDetailScreen({ route, navigation }) {
           {/* Owner actions */}
           {isOwner && post.status === 'open' && (
             <View style={styles.ownerActions}>
-              <Button title="Edit"   onPress={() => navigation.navigate('CreatePost', { post })} variant="outline"  size="sm" icon="pencil-outline" style={{ flex: 1, marginRight: 8 }} />
-              <Button title="Delete" onPress={handleDeletePost}                                   variant="danger"   size="sm" icon="trash-outline"  style={{ flex: 1 }} />
+              <Button title={t('common.edit')}   onPress={() => navigation.navigate('CreatePost', { post })} variant="outline"  size="sm" icon="pencil-outline" style={{ flex: 1, marginRight: 8 }} />
+              <Button title={t('common.delete')} onPress={handleDeletePost}                                   variant="danger"   size="sm" icon="trash-outline"  style={{ flex: 1 }} />
             </View>
           )}
 
           <Divider />
 
           {/* Offers section */}
-          <SectionHeader title={`Offers (${offers.length})`} />
+          <SectionHeader title={t('posts.offersHeading', { count: offers.length })} />
 
           {/* Skilled user: offer form */}
           {isSkilled && post.status === 'open' && !myExistingOffer && !offerForm && (
-            <Button title="Make an Offer" onPress={() => setOfferForm(true)} icon="add-circle-outline" style={{ marginBottom: spacing.md }} />
+            <Button title={t('posts.makeOffer')} onPress={() => setOfferForm(true)} icon="add-circle-outline" style={{ marginBottom: spacing.md }} />
           )}
 
           {isSkilled && offerForm && (
             <Card style={{ borderColor: colors.primary + '44' }}>
-              <Text style={styles.formTitle}>{editingOffer ? 'Edit Offer' : 'New Offer'}</Text>
+              <Text style={styles.formTitle}>{editingOffer ? t('posts.editOffer') : t('posts.newOffer')}</Text>
               <ErrorBanner message={error} />
-              <Input label="Description" placeholder="Describe what you'll do..." value={offerDesc} onChangeText={setOfferDesc} multiline numberOfLines={3} />
-              <Input label="Price (€)" placeholder="e.g. 75" value={offerPrice} onChangeText={setOfferPrice} keyboardType="numeric" />
+              <Input label={t('posts.offerDescLabel')} placeholder={t('posts.offerDescPlaceholder')} value={offerDesc} onChangeText={setOfferDesc} multiline numberOfLines={3} />
+              <Input label={t('posts.priceLabel')} placeholder={t('posts.pricePlaceholder')} value={offerPrice} onChangeText={setOfferPrice} keyboardType="numeric" />
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <Button title={editingOffer ? 'Update' : 'Submit'} onPress={handleOfferSubmit} loading={saving} style={{ flex: 1 }} />
-                <Button title="Cancel" onPress={() => { setOfferForm(false); setEditingOffer(null); setOfferDesc(''); setOfferPrice(''); }} variant="ghost" style={{ flex: 1 }} />
+                <Button title={editingOffer ? t('common.update') : t('common.submit')} onPress={handleOfferSubmit} loading={saving} style={{ flex: 1 }} />
+                <Button title={t('common.cancel')} onPress={() => { setOfferForm(false); setEditingOffer(null); setOfferDesc(''); setOfferPrice(''); }} variant="ghost" style={{ flex: 1 }} />
               </View>
             </Card>
           )}
 
           {offers.length === 0 ? (
-            <EmptyState icon="chatbubble-outline" title="No offers yet" subtitle={isSkilled ? 'Be the first to make an offer!' : 'Waiting for skilled pros to respond.'} />
+            <EmptyState icon="chatbubble-outline" title={t('posts.noOffersTitle')} subtitle={isSkilled ? t('posts.noOffersSubSkilled') : t('posts.noOffersSubOwner')} />
           ) : (
             offers.map((offer) => (
               <OfferCard
@@ -264,6 +267,7 @@ export function PostDetailScreen({ route, navigation }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export function CreatePostScreen({ route, navigation }) {
   const { user }       = useAuth();
+  const { t }          = useTranslation();
   const editPost       = route.params?.post;
   const [title,    setTitle]    = useState(editPost?.title       || '');
   const [desc,     setDesc]     = useState(editPost?.description || '');
@@ -277,14 +281,14 @@ export function CreatePostScreen({ route, navigation }) {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !desc.trim()) { setError('Title and description are required.'); return; }
+    if (!title.trim() || !desc.trim()) { setError(t('posts.titleDescRequired')); return; }
     setLoading(true); setError('');
 
     let imageUrl = editPost?.image_url || null;
     if (imageUri && imageUri !== editPost?.image_url) {
       const ext = imageUri.split('.').pop() || 'jpg';
       const { url, error: uploadErr } = await uploadPostImage(user.id, imageUri, ext);
-      if (uploadErr) { setError(`Image upload failed: ${uploadErr.message || JSON.stringify(uploadErr)}`); setLoading(false); return; }
+      if (uploadErr) { setError(t('posts.imageUploadFailed', { error: uploadErr.message || JSON.stringify(uploadErr) })); setLoading(false); return; }
       imageUrl = url;
     }
 
@@ -300,27 +304,27 @@ export function CreatePostScreen({ route, navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={{ padding: spacing.md }} keyboardShouldPersistTaps="handled">
-        <Text style={styles.screenTitle}>{editPost ? 'Edit Job Post' : 'Post a New Job'}</Text>
+        <Text style={styles.screenTitle}>{editPost ? t('posts.editJobPost') : t('posts.postNewJob')}</Text>
 
         <ErrorBanner message={error} />
 
-        <Input label="Job Title *" placeholder="e.g. Water pump not starting" value={title} onChangeText={setTitle} icon="construct-outline" />
-        <Input label="Description *" placeholder="Describe the problem in detail..." value={desc} onChangeText={setDesc} multiline numberOfLines={5} />
+        <Input label={t('posts.jobTitle')} placeholder={t('posts.jobTitlePlaceholder')} value={title} onChangeText={setTitle} icon="construct-outline" />
+        <Input label={t('posts.description')} placeholder={t('posts.descPlaceholder')} value={desc} onChangeText={setDesc} multiline numberOfLines={5} />
 
         {/* Image picker */}
-        <Text style={inputLabelStyle}>Photo (optional)</Text>
+        <Text style={inputLabelStyle}>{t('posts.photoOptional')}</Text>
         <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
           {imageUri ? (
             <Image source={{ uri: imageUri }} style={styles.previewImage} />
           ) : (
             <View style={styles.imagePickerPlaceholder}>
               <Ionicons name="camera-outline" size={32} color={colors.textFaint} />
-              <Text style={{ color: colors.textFaint, marginTop: 6 }}>Tap to add photo</Text>
+              <Text style={{ color: colors.textFaint, marginTop: 6 }}>{t('posts.tapToAddPhoto')}</Text>
             </View>
           )}
         </TouchableOpacity>
 
-        <Button title={editPost ? 'Save Changes' : 'Post Job'} onPress={handleSubmit} loading={loading} size="lg" style={{ marginTop: spacing.md }} icon="checkmark-outline" />
+        <Button title={editPost ? t('common.saveChanges') : t('posts.postJob')} onPress={handleSubmit} loading={loading} size="lg" style={{ marginTop: spacing.md }} icon="checkmark-outline" />
       </ScrollView>
     </SafeAreaView>
   );

@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { typography, spacing, radius } from '../../theme/index';
+import { useTranslation } from '../../context/LanguageContext';
 
 // ── Button ────────────────────────────────────────────────────────────────────
 export function Button({
@@ -137,25 +138,27 @@ const cardStyles = StyleSheet.create({
 
 // ── Badge / Status Tag ────────────────────────────────────────────────────────
 export function Badge({ status, label, size = 'sm' }) {
+  const { t } = useTranslation();
   const map = {
-    open:       { text: 'OPEN',        color: colors.success,  bg: colors.tagOpenBg },
-    in_progress:{ text: 'IN PROGRESS', color: colors.warning,  bg: colors.tagProgressBg },
-    completed:  { text: 'COMPLETED',   color: colors.info,     bg: colors.tagCompletedBg },
-    cancelled:  { text: 'CANCELLED',   color: colors.error,    bg: colors.tagClosedBg },
-    pending:    { text: 'PENDING',     color: colors.warning,  bg: colors.tagProgressBg },
-    accepted:   { text: 'ACCEPTED',    color: colors.success,  bg: colors.tagOpenBg },
-    declined:   { text: 'DECLINED',    color: colors.error,    bg: colors.tagClosedBg },
-    ordered:    { text: 'ORDERED',     color: colors.info,     bg: colors.tagCompletedBg },
-    normal:     { text: 'HOMEOWNER',   color: colors.success,  bg: colors.tagOpenBg },
-    skilled:    { text: 'SKILLED PRO', color: colors.info,     bg: '#1B2A3A' },
-    admin:      { text: 'ADMIN',       color: colors.warning,  bg: colors.tagProgressBg },
+    open:       { color: colors.success,  bg: colors.tagOpenBg },
+    in_progress:{ color: colors.warning,  bg: colors.tagProgressBg },
+    completed:  { color: colors.info,     bg: colors.tagCompletedBg },
+    cancelled:  { color: colors.error,    bg: colors.tagClosedBg },
+    pending:    { color: colors.warning,  bg: colors.tagProgressBg },
+    accepted:   { color: colors.success,  bg: colors.tagOpenBg },
+    declined:   { color: colors.error,    bg: colors.tagClosedBg },
+    ordered:    { color: colors.info,     bg: colors.tagCompletedBg },
+    normal:     { color: colors.success,  bg: colors.tagOpenBg },
+    skilled:    { color: colors.info,     bg: '#1B2A3A' },
+    admin:      { color: colors.warning,  bg: colors.tagProgressBg },
   };
-  const s = map[status] || { text: label || status?.toUpperCase(), color: colors.textMuted, bg: colors.bgMid };
+  const s = map[status] || { color: colors.textMuted, bg: colors.bgMid };
+  const text = label || (status ? t(`badge.${status}`) : '');
   const fs = size === 'sm' ? 11 : 13;
 
   return (
     <View style={{ backgroundColor: s.bg, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.full }}>
-      <Text style={{ color: s.color, fontSize: fs, fontWeight: '700' }}>{label || s.text}</Text>
+      <Text style={{ color: s.color, fontSize: fs, fontWeight: '700' }}>{text}</Text>
     </View>
   );
 }
@@ -190,11 +193,13 @@ export function StarRating({ rating = 0, size = 16, interactive = false, onRate,
 }
 
 // ── LoadingSpinner ────────────────────────────────────────────────────────────
-export function LoadingSpinner({ message = 'Loading...' }) {
+export function LoadingSpinner({ message }) {
+  const { t } = useTranslation();
+  const msg = message ?? t('common.loading');
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
       <ActivityIndicator size="large" color={colors.primary} />
-      {message && <Text style={{ color: colors.textMuted, marginTop: 12, fontSize: 14 }}>{message}</Text>}
+      {msg && <Text style={{ color: colors.textMuted, marginTop: 12, fontSize: 14 }}>{msg}</Text>}
     </View>
   );
 }

@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import {
   Button, Card, Badge, Avatar, LoadingSpinner,
   EmptyState, SectionHeader, Divider,
@@ -23,6 +24,7 @@ import { spacing, typography, radius } from '../../theme/index';
 // AdminDashboardScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdminDashboardScreen({ navigation }) {
+  const { t } = useTranslation();
   const [users,   setUsers]   = useState([]);
   const [posts,   setPosts]   = useState([]);
   const [orders,  setOrders]  = useState([]);
@@ -50,25 +52,25 @@ export function AdminDashboardScreen({ navigation }) {
   const active   = orders.filter((o) => ['pending', 'accepted'].includes(o.status));
 
   const stats = [
-    { label: 'Total Users',    value: users.length,    icon: 'people-outline',    color: colors.info },
-    { label: 'Skilled Pros',   value: skilled.length,  icon: 'construct-outline', color: colors.primary },
-    { label: 'Homeowners',     value: normal.length,   icon: 'home-outline',      color: colors.success },
-    { label: 'Open Jobs',      value: openJobs.length, icon: 'clipboard-outline', color: colors.warning },
-    { label: 'Active Orders',  value: active.length,   icon: 'bag-outline',       color: '#A855F7' },
-    { label: 'Reviews',        value: reviews.length,  icon: 'star-outline',      color: colors.warning },
+    { label: t('admin.statTotalUsers'),   value: users.length,    icon: 'people-outline',    color: colors.info },
+    { label: t('admin.statSkilled'),      value: skilled.length,  icon: 'construct-outline', color: colors.primary },
+    { label: t('admin.statHomeowners'),   value: normal.length,   icon: 'home-outline',      color: colors.success },
+    { label: t('admin.statOpenJobs'),     value: openJobs.length, icon: 'clipboard-outline', color: colors.warning },
+    { label: t('admin.statActiveOrders'), value: active.length,   icon: 'bag-outline',       color: '#A855F7' },
+    { label: t('admin.statReviews'),      value: reviews.length,  icon: 'star-outline',      color: colors.warning },
   ];
 
   const sections = [
-    { label: 'Manage Users',   icon: 'people-outline',    route: 'AdminUsers' },
-    { label: 'Manage Posts',   icon: 'clipboard-outline', route: 'AdminPosts' },
-    { label: 'Manage Orders',  icon: 'bag-outline',       route: 'AdminOrders' },
-    { label: 'Manage Reviews', icon: 'star-outline',      route: 'AdminReviews' },
+    { label: t('admin.manageUsers'),   icon: 'people-outline',    route: 'AdminUsers' },
+    { label: t('admin.managePosts'),   icon: 'clipboard-outline', route: 'AdminPosts' },
+    { label: t('admin.manageOrders'),  icon: 'bag-outline',       route: 'AdminOrders' },
+    { label: t('admin.manageReviews'), icon: 'star-outline',      route: 'AdminReviews' },
   ];
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={{ padding: spacing.md }}>
-        <Text style={styles.title}>Admin Dashboard</Text>
+        <Text style={styles.title}>{t('admin.dashboard')}</Text>
 
         {/* Stats grid */}
         <View style={styles.statsGrid}>
@@ -84,7 +86,7 @@ export function AdminDashboardScreen({ navigation }) {
         <Divider />
 
         {/* Quick nav */}
-        <SectionHeader title="Management" />
+        <SectionHeader title={t('admin.management')} />
         {sections.map((s) => (
           <TouchableOpacity
             key={s.route}
@@ -107,6 +109,7 @@ export function AdminDashboardScreen({ navigation }) {
 // AdminUsersScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdminUsersScreen() {
+  const { t } = useTranslation();
   const [users,     setUsers]     = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -119,9 +122,9 @@ export function AdminUsersScreen() {
   useEffect(() => { load(); }, []);
 
   const handleDelete = (userId, name) => {
-    Alert.alert('Delete User', `Delete "${name}"? This will remove all their data.`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteUser(userId); load(); } },
+    Alert.alert(t('admin.deleteUser'), t('admin.deleteUserConfirm', { name }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: async () => { await deleteUser(userId); load(); } },
     ]);
   };
 
@@ -140,7 +143,7 @@ export function AdminUsersScreen() {
               <Avatar uri={item.avatar_url} name={item.full_name} size={44} />
               <View style={{ flex: 1, marginLeft: spacing.sm }}>
                 <Text style={{ fontWeight: '700', color: colors.textPrimary }}>{item.full_name}</Text>
-                <Text style={{ color: colors.textFaint, fontSize: 12 }}>{item.phone || 'No phone'}</Text>
+                <Text style={{ color: colors.textFaint, fontSize: 12 }}>{item.phone || t('admin.noPhone')}</Text>
               </View>
               <Badge status={item.role} />
               <TouchableOpacity onPress={() => handleDelete(item.id, item.full_name)} style={{ marginLeft: spacing.sm }}>
@@ -155,7 +158,7 @@ export function AdminUsersScreen() {
             )}
           </Card>
         )}
-        ListEmptyComponent={<EmptyState icon="people-outline" title="No users found" />}
+        ListEmptyComponent={<EmptyState icon="people-outline" title={t('admin.noUsers')} />}
       />
     </SafeAreaView>
   );
@@ -165,6 +168,7 @@ export function AdminUsersScreen() {
 // AdminPostsScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdminPostsScreen() {
+  const { t } = useTranslation();
   const [posts,     setPosts]     = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -177,9 +181,9 @@ export function AdminPostsScreen() {
   useEffect(() => { load(); }, []);
 
   const handleDelete = (postId, title) => {
-    Alert.alert('Delete Post', `Delete "${title}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deletePost(postId); load(); } },
+    Alert.alert(t('admin.deletePost'), t('admin.deletePostConfirm', { title }), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: async () => { await deletePost(postId); load(); } },
     ]);
   };
 
@@ -197,7 +201,7 @@ export function AdminPostsScreen() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <View style={{ flex: 1, marginRight: spacing.sm }}>
                 <Text style={{ fontWeight: '700', color: colors.textPrimary }} numberOfLines={1}>{item.title}</Text>
-                <Text style={{ color: colors.textFaint, fontSize: 12, marginTop: 2 }}>by {item.profiles?.full_name} · {item.offers_count} offers</Text>
+                <Text style={{ color: colors.textFaint, fontSize: 12, marginTop: 2 }}>{t('admin.byUserOffers', { name: item.profiles?.full_name, count: item.offers_count })}</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                 <Badge status={item.status} />
@@ -208,7 +212,7 @@ export function AdminPostsScreen() {
             </View>
           </Card>
         )}
-        ListEmptyComponent={<EmptyState icon="clipboard-outline" title="No posts found" />}
+        ListEmptyComponent={<EmptyState icon="clipboard-outline" title={t('admin.noPosts')} />}
       />
     </SafeAreaView>
   );
@@ -218,6 +222,7 @@ export function AdminPostsScreen() {
 // AdminOrdersScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdminOrdersScreen() {
+  const { t } = useTranslation();
   const [orders,    setOrders]    = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -230,9 +235,9 @@ export function AdminOrdersScreen() {
   useEffect(() => { load(); }, []);
 
   const handleDelete = (orderId) => {
-    Alert.alert('Delete Order', 'Delete this order permanently?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteOrder(orderId); load(); } },
+    Alert.alert(t('admin.deleteOrder'), t('admin.deleteOrderConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: async () => { await deleteOrder(orderId); load(); } },
     ]);
   };
 
@@ -253,7 +258,7 @@ export function AdminOrdersScreen() {
                 <Text style={{ color: colors.textFaint, fontSize: 12, marginTop: 2 }}>
                   {item.normal_user?.full_name} → {item.skilled_user?.full_name}
                 </Text>
-                <Text style={{ color: colors.textFaint, fontSize: 12 }}>{item.scheduled_date} at {item.scheduled_time?.slice(0,5)}</Text>
+                <Text style={{ color: colors.textFaint, fontSize: 12 }}>{item.scheduled_date} · {item.scheduled_time?.slice(0,5)}</Text>
               </View>
               <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                 <Badge status={item.status} />
@@ -264,7 +269,7 @@ export function AdminOrdersScreen() {
             </View>
           </Card>
         )}
-        ListEmptyComponent={<EmptyState icon="bag-outline" title="No orders found" />}
+        ListEmptyComponent={<EmptyState icon="bag-outline" title={t('admin.noOrders')} />}
       />
     </SafeAreaView>
   );
@@ -274,6 +279,7 @@ export function AdminOrdersScreen() {
 // AdminReviewsScreen
 // ─────────────────────────────────────────────────────────────────────────────
 export function AdminReviewsScreen() {
+  const { t } = useTranslation();
   const [reviews,   setReviews]   = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -286,9 +292,9 @@ export function AdminReviewsScreen() {
   useEffect(() => { load(); }, []);
 
   const handleDelete = (reviewId) => {
-    Alert.alert('Delete Review', 'Delete this review permanently?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteReview(reviewId); load(); } },
+    Alert.alert(t('admin.deleteReview'), t('admin.deleteReviewConfirm'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: async () => { await deleteReview(reviewId); load(); } },
     ]);
   };
 
@@ -320,7 +326,7 @@ export function AdminReviewsScreen() {
             </View>
           </Card>
         )}
-        ListEmptyComponent={<EmptyState icon="star-outline" title="No reviews found" />}
+        ListEmptyComponent={<EmptyState icon="star-outline" title={t('admin.noReviews')} />}
       />
     </SafeAreaView>
   );

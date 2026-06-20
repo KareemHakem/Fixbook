@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Avatar } from '../common';
 import { colors } from '../../theme/colors';
 import { spacing, radius } from '../../theme/index';
+import { useTranslation } from '../../context/LanguageContext';
 
 // ── Message Bubble ────────────────────────────────────────────────────────────
 export function MessageBubble({ message, isMe }) {
@@ -25,11 +26,13 @@ export function MessageBubble({ message, isMe }) {
 
 // ── Chat List Item ────────────────────────────────────────────────────────────
 export function ChatListItem({ chat, currentUserId, onPress }) {
+  const { t, language } = useTranslation();
   const isNormal  = chat.normal_user_id === currentUserId;
   const otherUser = isNormal ? chat.skilled_user : chat.normal_user;
   const postTitle = chat.posts?.title;
+  const dateLocale = language === 'lt' ? 'lt-LT' : undefined;
   const timeStr   = chat.last_message_at
-    ? new Date(chat.last_message_at).toLocaleDateString([], { month: 'short', day: 'numeric' })
+    ? new Date(chat.last_message_at).toLocaleDateString(dateLocale, { month: 'short', day: 'numeric' })
     : '';
 
   return (
@@ -42,7 +45,7 @@ export function ChatListItem({ chat, currentUserId, onPress }) {
             {timeStr && <Text style={styles.listTime}>{timeStr}</Text>}
           </View>
           {postTitle && (
-            <Text style={styles.listSubtitle} numberOfLines={1}>Re: {postTitle}</Text>
+            <Text style={styles.listSubtitle} numberOfLines={1}>{t('chat.rePrefix', { title: postTitle })}</Text>
           )}
         </View>
       </View>

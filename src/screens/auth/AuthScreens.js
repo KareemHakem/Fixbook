@@ -8,19 +8,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { Button, Input, ErrorBanner } from '../../components/common';
 import { colors } from '../../theme/colors';
 import { spacing, typography, radius } from '../../theme/index';
 
 export function LoginScreen({ navigation }) {
   const { signIn } = useAuth();
+  const { t } = useTranslation();
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) { setError('Please fill in all fields.'); return; }
+    if (!email || !password) { setError(t('common.fillAllFields')); return; }
     setError(''); setLoading(true);
     const { error: err } = await signIn({ email, password });
     if (err) setError(err.message);
@@ -35,19 +37,19 @@ export function LoginScreen({ navigation }) {
           <View style={styles.logoWrap}>
             <Image source={require('../../../assets/icon.png')} style={styles.logoImage} resizeMode="contain" />
              <Text style={styles.logo}>FIXBOOK</Text>
-            <Text style={styles.tagline}>Home Repair Marketplace</Text>
+            <Text style={styles.tagline}>{t('auth.tagline')}</Text>
           </View>
 
           <ErrorBanner message={error} />
 
-          <Input label="Email" placeholder="you@email.com" value={email} onChangeText={setEmail} keyboardType="email-address" icon="mail-outline" />
-          <Input label="Password" placeholder="••••••••" value={password} onChangeText={setPassword} secureTextEntry icon="lock-closed-outline" />
+          <Input label={t('auth.email')} placeholder={t('auth.emailPlaceholder')} value={email} onChangeText={setEmail} keyboardType="email-address" icon="mail-outline" />
+          <Input label={t('auth.password')} placeholder={t('auth.passwordHidden')} value={password} onChangeText={setPassword} secureTextEntry icon="lock-closed-outline" />
 
-          <Button title="Sign In" onPress={handleLogin} loading={loading} size="lg" style={{ marginTop: spacing.sm }} />
+          <Button title={t('auth.signIn')} onPress={handleLogin} loading={loading} size="lg" style={{ marginTop: spacing.sm }} />
 
           <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.switchRow}>
-            <Text style={styles.switchText}>Don't have an account? </Text>
-            <Text style={styles.switchLink}>Register</Text>
+            <Text style={styles.switchText}>{t('auth.noAccountQ')}</Text>
+            <Text style={styles.switchLink}>{t('auth.register')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -60,6 +62,7 @@ export function LoginScreen({ navigation }) {
 // ─────────────────────────────────────────────────────────────────────────────
 export function RegisterScreen({ navigation }) {
   const { signUp } = useAuth();
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState('');
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -69,9 +72,9 @@ export function RegisterScreen({ navigation }) {
   const [error,    setError]    = useState('');
 
   const handleRegister = async () => {
-    if (!fullName || !email || !password || !confirm) { setError('Please fill in all fields.'); return; }
-    if (password !== confirm) { setError('Passwords do not match.'); return; }
-    if (password.length < 6)  { setError('Password must be at least 6 characters.'); return; }
+    if (!fullName || !email || !password || !confirm) { setError(t('common.fillAllFields')); return; }
+    if (password !== confirm) { setError(t('auth.passwordsMismatch')); return; }
+    if (password.length < 6)  { setError(t('auth.passwordTooShort')); return; }
     setError(''); setLoading(true);
     const { error: err } = await signUp({ email, password, fullName, role });
     if (err) {setError(err.message);
@@ -85,15 +88,15 @@ export function RegisterScreen({ navigation }) {
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           <View style={styles.logoWrap}>
             <Text style={styles.logo}>FIXBOOK</Text>
-            <Text style={styles.tagline}>Create your account</Text>
+            <Text style={styles.tagline}>{t('auth.createAccount')}</Text>
           </View>
 
           {/* Role selector */}
-          <Text style={styles.roleLabel}>I am a...</Text>
+          <Text style={styles.roleLabel}>{t('auth.iAmA')}</Text>
           <View style={styles.roleRow}>
             {[
-              { id: 'normal',  label: '🏠 Homeowner',   sub: 'Post jobs & find help' },
-              { id: 'skilled', label: '🔧 Skilled Pro',  sub: 'Find jobs & earn money' },
+              { id: 'normal',  label: t('auth.homeowner'),  sub: t('auth.homeownerSub') },
+              { id: 'skilled', label: t('auth.skilledPro'), sub: t('auth.skilledProSub') },
             ].map((r) => (
               <TouchableOpacity
                 key={r.id}
@@ -108,16 +111,16 @@ export function RegisterScreen({ navigation }) {
 
           <ErrorBanner message={error} />
 
-          <Input label="Full Name"        placeholder="Your full name"  value={fullName} onChangeText={setFullName} icon="person-outline" />
-          <Input label="Email"            placeholder="you@email.com"   value={email}    onChangeText={setEmail}    icon="mail-outline"   keyboardType="email-address" />
-          <Input label="Password"         placeholder="Min 6 characters" value={password} onChangeText={setPassword} icon="lock-closed-outline" secureTextEntry />
-          <Input label="Confirm Password" placeholder="Repeat password" value={confirm}  onChangeText={setConfirm}  icon="lock-closed-outline" secureTextEntry />
+          <Input label={t('auth.fullName')}        placeholder={t('auth.yourFullName')}     value={fullName} onChangeText={setFullName} icon="person-outline" />
+          <Input label={t('auth.email')}           placeholder={t('auth.emailPlaceholder')} value={email}    onChangeText={setEmail}    icon="mail-outline"   keyboardType="email-address" />
+          <Input label={t('auth.password')}        placeholder={t('auth.min6Chars')}        value={password} onChangeText={setPassword} icon="lock-closed-outline" secureTextEntry />
+          <Input label={t('auth.confirmPassword')} placeholder={t('auth.repeatPassword')}   value={confirm}  onChangeText={setConfirm}  icon="lock-closed-outline" secureTextEntry />
 
-          <Button title="Create Account" onPress={handleRegister} loading={loading} size="lg" style={{ marginTop: spacing.sm }} />
+          <Button title={t('auth.signUp')} onPress={handleRegister} loading={loading} size="lg" style={{ marginTop: spacing.sm }} />
 
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.switchRow}>
-            <Text style={styles.switchText}>Already have an account? </Text>
-            <Text style={styles.switchLink}>Sign In</Text>
+            <Text style={styles.switchText}>{t('auth.haveAccountQ')}</Text>
+            <Text style={styles.switchLink}>{t('auth.signIn')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { MessageBubble, ChatListItem } from '../../components/chat';
 import { LoadingSpinner, EmptyState, Avatar } from '../../components/common';
 import {
@@ -20,6 +21,7 @@ import { spacing, typography, radius } from '../../theme/index';
 // ─────────────────────────────────────────────────────────────────────────────
 export function ChatListScreen({ navigation }) {
   const { user } = useAuth();
+  const { t }    = useTranslation();
   const [chats,     setChats]     = useState([]);
   const [loading,   setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -53,8 +55,8 @@ export function ChatListScreen({ navigation }) {
         ListEmptyComponent={
           <EmptyState
             icon="chatbubbles-outline"
-            title="No conversations yet"
-            subtitle="When a homeowner starts a chat with you, it will appear here."
+            title={t('chat.noConversationsTitle')}
+            subtitle={t('chat.noConversationsSubtitle')}
           />
         }
       />
@@ -68,6 +70,7 @@ export function ChatListScreen({ navigation }) {
 export function ChatDetailScreen({ route, navigation }) {
   const { chatId, otherName } = route.params;
   const { user } = useAuth();
+  const { t }    = useTranslation();
   const [messages, setMessages] = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [text,     setText]     = useState('');
@@ -76,8 +79,8 @@ export function ChatDetailScreen({ route, navigation }) {
 
   // Set header title
   useEffect(() => {
-    navigation.setOptions({ title: otherName || 'Chat' });
-  }, [otherName, navigation]);
+    navigation.setOptions({ title: otherName || t('nav.chat') });
+  }, [otherName, navigation, t]);
 
   // Load messages
   useEffect(() => {
@@ -130,7 +133,7 @@ export function ChatDetailScreen({ route, navigation }) {
           onLayout={() => flatRef.current?.scrollToEnd({ animated: false })}
           ListEmptyComponent={
             <View style={{ alignItems: 'center', padding: spacing.xl }}>
-              <Text style={{ color: colors.textFaint, fontSize: 13 }}>No messages yet. Say hello!</Text>
+              <Text style={{ color: colors.textFaint, fontSize: 13 }}>{t('chat.noMessages')}</Text>
             </View>
           }
         />
@@ -139,7 +142,7 @@ export function ChatDetailScreen({ route, navigation }) {
         <View style={styles.inputBar}>
           <TextInput
             style={styles.msgInput}
-            placeholder="Type a message..."
+            placeholder={t('chat.typeMessage')}
             placeholderTextColor={colors.textFaint}
             value={text}
             onChangeText={setText}

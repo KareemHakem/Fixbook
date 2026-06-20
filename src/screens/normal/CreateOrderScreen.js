@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { Button, Input, Card, Avatar, ErrorBanner } from '../../components/common';
 import { createOrder } from '../../services/orderService';
 import { colors } from '../../theme/colors';
@@ -14,6 +15,7 @@ import { spacing, typography, radius } from '../../theme/index';
 export function CreateOrderScreen({ route, navigation }) {
   const { offer, post } = route.params;
   const { user, profile } = useAuth();
+  const { t, language } = useTranslation();
 
   const [date,    setDate]    = useState(new Date());
   const [time,    setTime]    = useState(new Date());
@@ -24,17 +26,18 @@ export function CreateOrderScreen({ route, navigation }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  const fmtDate = (d) => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+  const dateLocale = language === 'lt' ? 'lt-LT' : 'en-GB';
+  const fmtDate = (d) => d.toLocaleDateString(dateLocale, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
   const fmtTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const isoDate = (d) => d.toISOString().split('T')[0];
   const isoTime = (d) => `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 
   const handleSubmit = async () => {
-    if (!phone.trim() || !location.trim()) { setError('Phone and location are required.'); return; }
+    if (!phone.trim() || !location.trim()) { setError(t('createOrder.phoneLocationReq')); return; }
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
     const today = new Date(); today.setHours(0, 0, 0, 0);
-    if (selectedDate < today) { setError('Please select a future date.'); return; }
+    if (selectedDate < today) { setError(t('createOrder.futureDate')); return; }
 
     setLoading(true); setError('');
     const { data, error: err } = await createOrder({
@@ -50,22 +53,22 @@ export function CreateOrderScreen({ route, navigation }) {
 
     if (err) {
       // Unique constraint violation = active order already exists
-      setError(err.code === '23505' ? 'You already have an active order for this post.' : err.message);
+      setError(err.code === '23505' ? t('createOrder.duplicateOrder') : err.message);
       setLoading(false);
       return;
     }
 
     setLoading(false);
-    Alert.alert('Order Placed!', 'Your order has been sent to the skilled pro. They will accept or decline shortly.', [
-      { text: 'View My Orders', onPress: () => navigation.navigate('Orders') },
-      { text: 'OK', onPress: () => navigation.navigate('PostsList') },
+    Alert.alert(t('createOrder.placedTitle'), t('createOrder.placedBody'), [
+      { text: t('createOrder.viewMyOrders'), onPress: () => navigation.navigate('Orders') },
+      { text: t('common.ok'), onPress: () => navigation.navigate('PostsList') },
     ]);
   };
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={{ padding: spacing.md }} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Confirm Order</Text>
+        <Text style={styles.title}>{t('createOrder.title')}</Text>
 
         {/* Offer summary */}
         <Card style={{ borderColor: colors.primary + '44', marginBottom: spacing.md }}>
@@ -77,7 +80,7 @@ export function CreateOrderScreen({ route, navigation }) {
             </View>
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={styles.price}>€{Number(offer.price).toFixed(0)}</Text>
-              <Text style={{ color: colors.textFaint, fontSize: 11 }}>agreed price</Text>
+              <Text style={{ color: colors.textFaint, fontSize: 11 }}>{t('createOrder.agreedPrice')}</Text>
             </View>
           </View>
           <Text style={styles.offerDesc}>{offer.description}</Text>
@@ -86,7 +89,7 @@ export function CreateOrderScreen({ route, navigation }) {
         <ErrorBanner message={error} />
 
         {/* Date */}
-        <Text style={styles.label}>Scheduled Date *</Text>
+        <Text style={styles.label}>{t('createOrder.scheduledDate')}</Text>
         <Button
           title={fmtDate(date)}
           onPress={() => setShowDatePicker(true)}
@@ -105,7 +108,7 @@ export function CreateOrderScreen({ route, navigation }) {
         )}
 
         {/* Time */}
-        <Text style={styles.label}>Scheduled Time *</Text>
+        <Text style={styles.label}>{t('createOrder.scheduledTime')}</Text>
         <Button
           title={fmtTime(time)}
           onPress={() => setShowTimePicker(true)}
@@ -122,11 +125,11 @@ export function CreateOrderScreen({ route, navigation }) {
           />
         )}
 
-        <Input label="Contact Phone *" placeholder="+370 600 12345" value={phone} onChangeText={setPhone} keyboardType="phone-pad" icon="call-outline" />
-        <Input label="Job Location *" placeholder="Full address where work will be done" value={location} onChangeText={setLocation} multiline numberOfLines={2} icon="location-outline" />
+        <Input label={t('createOrder.contactPhone')} placeholder={t('createOrder.phonePlaceholder')} value={phone} onChangeText={setPhone} keyboardType="phone-pad" icon="call-outline" />
+        <Input label={t('createOrder.jobLocation')} placeholder={t('createOrder.locationPlaceholder')} value={location} onChangeText={setLocation} multiline numberOfLines={2} icon="location-outline" />
 
-        <Button title="Confirm & Place Order" onPress={handleSubmit} loading={loading} size="lg" icon="checkmark-circle-outline" style={{ marginTop: spacing.sm }} />
-        <Button title="Cancel" onPress={() => navigation.goBack()} variant="ghost" style={{ marginTop: spacing.sm }} />
+        <Button title={t('createOrder.submit')} onPress={handleSubmit} loading={loading} size="lg" icon="checkmark-circle-outline" style={{ marginTop: spacing.sm }} />
+        <Button title={t('common.cancel')} onPress={() => navigation.goBack()} variant="ghost" style={{ marginTop: spacing.sm }} />
       </ScrollView>
     </SafeAreaView>
   );

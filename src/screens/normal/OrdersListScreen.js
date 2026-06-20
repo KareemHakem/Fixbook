@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import OrderCard from '../../components/orders/OrderCard';
 import { LoadingSpinner, EmptyState } from '../../components/common';
 import {
@@ -14,6 +15,7 @@ import { spacing, radius, typography } from '../../theme/index';
 
 export function OrdersListScreen({ navigation }) {
   const { user, profile } = useAuth();
+  const { t } = useTranslation();
   const isSkilled   = profile?.role === 'skilled';
   const [orders,    setOrders]    = useState([]);
   const [tab,       setTab]       = useState('active');   // active | completed
@@ -37,28 +39,28 @@ export function OrdersListScreen({ navigation }) {
   );
 
   const confirmAction = (msg, onConfirm) =>
-    Alert.alert('Confirm', msg, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Yes', onPress: onConfirm },
+    Alert.alert(t('orders.confirmTitle'), msg, [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.yes'), onPress: onConfirm },
     ]);
 
   const runStatusUpdate = async (order, status) => {
     const { error } = await updateOrderStatus(order.id, status);
     if (error) {
-      Alert.alert('Could not update order', error.message || 'Unknown error');
+      Alert.alert(t('orders.couldNotUpdate'), error.message || t('common.unknownError'));
       return;
     }
     load();
   };
 
   const handleAccept = (order) =>
-    confirmAction('Accept this order?',  () => runStatusUpdate(order, 'accepted'));
+    confirmAction(t('orders.acceptConfirm'),  () => runStatusUpdate(order, 'accepted'));
 
   const handleDecline = (order) =>
-    confirmAction('Decline this order?', () => runStatusUpdate(order, 'declined'));
+    confirmAction(t('orders.declineConfirm'), () => runStatusUpdate(order, 'declined'));
 
   const handleComplete = (order) =>
-    confirmAction('Mark this job as completed?', () => runStatusUpdate(order, 'completed'));
+    confirmAction(t('orders.completeConfirm'), () => runStatusUpdate(order, 'completed'));
 
   const handleReview = (order) =>
     navigation.navigate('LeaveReview', { order });
@@ -70,15 +72,15 @@ export function OrdersListScreen({ navigation }) {
       {/* Tabs */}
       <View style={styles.tabs}>
         {[
-          { id: 'active',    label: 'Active' },
-          { id: 'completed', label: 'History' },
-        ].map((t) => (
-          <View key={t.id} style={[styles.tab, tab === t.id && styles.tabActive]}>
+          { id: 'active',    label: t('orders.tabActive') },
+          { id: 'completed', label: t('orders.tabHistory') },
+        ].map((tabItem) => (
+          <View key={tabItem.id} style={[styles.tab, tab === tabItem.id && styles.tabActive]}>
             <Text
-              onPress={() => setTab(t.id)}
-              style={[styles.tabText, tab === t.id && styles.tabTextActive]}
+              onPress={() => setTab(tabItem.id)}
+              style={[styles.tabText, tab === tabItem.id && styles.tabTextActive]}
             >
-              {t.label}
+              {tabItem.label}
             </Text>
           </View>
         ))}
@@ -102,10 +104,10 @@ export function OrdersListScreen({ navigation }) {
         ListEmptyComponent={
           <EmptyState
             icon="clipboard-outline"
-            title={tab === 'active' ? 'No active orders' : 'No order history'}
+            title={tab === 'active' ? t('orders.noActiveTitle') : t('orders.noHistoryTitle')}
             subtitle={tab === 'active'
-              ? isSkilled ? 'Orders from clients will appear here.' : 'Place an order by choosing an offer on a job post.'
-              : 'Completed or declined orders will show here.'}
+              ? isSkilled ? t('orders.activeSubSkilled') : t('orders.activeSubNormal')
+              : t('orders.historySub')}
           />
         }
       />

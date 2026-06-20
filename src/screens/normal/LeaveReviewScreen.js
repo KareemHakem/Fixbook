@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { Button, Card, Avatar, StarRating, Input, ErrorBanner } from '../../components/common';
 import { createReview } from '../../services/reviewService';
 import { colors } from '../../theme/colors';
@@ -10,6 +11,7 @@ import { spacing, typography } from '../../theme/index';
 export function LeaveReviewScreen({ route, navigation }) {
   const { order } = route.params;
   const { user }  = useAuth();
+  const { t }     = useTranslation();
   const skilledUser = order.skilled_user || {};
 
   const [rating,     setRating]     = useState(5);
@@ -27,20 +29,20 @@ export function LeaveReviewScreen({ route, navigation }) {
       reviewText:    reviewText.trim() || null,
     });
     if (err) {
-      setError(err.code === '23505' ? 'You have already reviewed this order.' : err.message);
+      setError(err.code === '23505' ? t('review.duplicate') : err.message);
       setLoading(false);
       return;
     }
     setLoading(false);
-    Alert.alert('Review Submitted!', 'Thank you for your feedback.', [
-      { text: 'OK', onPress: () => navigation.navigate('Orders') },
+    Alert.alert(t('review.submittedTitle'), t('review.submittedBody'), [
+      { text: t('common.ok'), onPress: () => navigation.navigate('Orders') },
     ]);
   };
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <Text style={styles.title}>Leave a Review</Text>
+        <Text style={styles.title}>{t('review.title')}</Text>
 
         {/* Pro info */}
         <Card style={{ alignItems: 'center', marginBottom: spacing.lg }}>
@@ -50,27 +52,27 @@ export function LeaveReviewScreen({ route, navigation }) {
         </Card>
 
         {/* Stars */}
-        <Text style={styles.label}>Rating *</Text>
+        <Text style={styles.label}>{t('review.rating')}</Text>
         <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
           <StarRating rating={rating} size={40} interactive onRate={setRating} />
           <Text style={{ color: colors.warning, fontWeight: '700', marginTop: 8, fontSize: 15 }}>
-            {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][rating]}
+            {['', t('review.poor'), t('review.fair'), t('review.good'), t('review.veryGood'), t('review.excellent')][rating]}
           </Text>
         </View>
 
         <ErrorBanner message={error} />
 
         <Input
-          label="Written Review (optional)"
-          placeholder="Share your experience with this professional..."
+          label={t('review.writtenLabel')}
+          placeholder={t('review.writtenPlaceholder')}
           value={reviewText}
           onChangeText={setReviewText}
           multiline
           numberOfLines={4}
         />
 
-        <Button title="Submit Review" onPress={handleSubmit} loading={loading} size="lg" icon="star-outline" style={{ marginTop: spacing.sm }} />
-        <Button title="Cancel" onPress={() => navigation.goBack()} variant="ghost" style={{ marginTop: spacing.sm }} />
+        <Button title={t('review.submit')} onPress={handleSubmit} loading={loading} size="lg" icon="star-outline" style={{ marginTop: spacing.sm }} />
+        <Button title={t('common.cancel')} onPress={() => navigation.goBack()} variant="ghost" style={{ marginTop: spacing.sm }} />
       </View>
     </SafeAreaView>
   );

@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card, Badge, Avatar, Button } from '../common';
 import { colors } from '../../theme/colors';
 import { typography, spacing, radius } from '../../theme/index';
+import { useTranslation } from '../../context/LanguageContext';
 
 export default function OrderCard({
   order,
@@ -13,6 +14,7 @@ export default function OrderCard({
   onComplete,
   onReview,
 }) {
+  const { t } = useTranslation();
   const isSkilled = viewAs === 'skilled';
   const otherUser = isSkilled ? order.normal_user : order.skilled_user;
   const price     = order.offers?.price;
@@ -31,11 +33,11 @@ export default function OrderCard({
 
       {/* Details grid */}
       <View style={styles.grid}>
-        <DetailRow icon="calendar-outline"  label="Date"     value={order.scheduled_date} />
-        <DetailRow icon="time-outline"      label="Time"     value={order.scheduled_time?.slice(0, 5)} />
-        <DetailRow icon="call-outline"      label="Phone"    value={order.contact_phone} />
-        <DetailRow icon="location-outline"  label="Location" value={order.location} />
-        {price && <DetailRow icon="cash-outline" label="Price" value={`€${Number(price).toFixed(0)}`} valueColor={colors.primary} />}
+        <DetailRow icon="calendar-outline"  label={t('orders.detailDate')}     value={order.scheduled_date} />
+        <DetailRow icon="time-outline"      label={t('orders.detailTime')}     value={order.scheduled_time?.slice(0, 5)} />
+        <DetailRow icon="call-outline"      label={t('orders.detailPhone')}    value={order.contact_phone} />
+        <DetailRow icon="location-outline"  label={t('orders.detailLocation')} value={order.location} />
+        {price && <DetailRow icon="cash-outline" label={t('orders.detailPrice')} value={`€${Number(price).toFixed(0)}`} valueColor={colors.primary} />}
       </View>
 
       {/* Description */}
@@ -48,22 +50,22 @@ export default function OrderCard({
         {/* Skilled user: pending → accept or decline */}
         {isSkilled && order.status === 'pending' && (
           <>
-            <Button title="Accept"  onPress={() => onAccept(order)}  size="sm" variant="success" icon="checkmark-outline" style={{ flex: 1, marginRight: 8 }} />
-            <Button title="Decline" onPress={() => onDecline(order)} size="sm" variant="danger"  icon="close-outline"    style={{ flex: 1 }} />
+            <Button title={t('orders.accept')}  onPress={() => onAccept(order)}  size="sm" variant="success" icon="checkmark-outline" style={{ flex: 1, marginRight: 8 }} />
+            <Button title={t('orders.decline')} onPress={() => onDecline(order)} size="sm" variant="danger"  icon="close-outline"    style={{ flex: 1 }} />
           </>
         )}
         {/* Skilled user: accepted → mark complete */}
         {isSkilled && order.status === 'accepted' && (
-          <Button title="Mark as Completed" onPress={() => onComplete(order)} size="sm" variant="outline" icon="checkmark-done-outline" style={{ flex: 1 }} />
+          <Button title={t('orders.markCompleted')} onPress={() => onComplete(order)} size="sm" variant="outline" icon="checkmark-done-outline" style={{ flex: 1 }} />
         )}
         {/* Normal user: completed + no review yet → leave review */}
         {!isSkilled && order.status === 'completed' && !order.review_left && (
-          <Button title="Leave Review" onPress={() => onReview(order)} size="sm" icon="star-outline" style={{ flex: 1 }} />
+          <Button title={t('orders.leaveReview')} onPress={() => onReview(order)} size="sm" icon="star-outline" style={{ flex: 1 }} />
         )}
         {!isSkilled && order.status === 'completed' && order.review_left && (
           <View style={styles.reviewedBadge}>
             <Ionicons name="checkmark-circle" size={16} color={colors.success} />
-            <Text style={{ color: colors.success, fontSize: 13, marginLeft: 5 }}>Review submitted</Text>
+            <Text style={{ color: colors.success, fontSize: 13, marginLeft: 5 }}>{t('orders.reviewSubmitted')}</Text>
           </View>
         )}
       </View>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Card, Avatar, StarRating, Badge, Button } from '../common';
 import { colors } from '../../theme/colors';
 import { typography, spacing, radius } from '../../theme/index';
+import { useTranslation } from '../../context/LanguageContext';
 
 export default function OfferCard({
   offer,
@@ -14,6 +15,7 @@ export default function OfferCard({
   onDelete,
   currentUserId,
 }) {
+  const { t } = useTranslation();
   const skilledUser    = offer.skilled_user || {};
   const skilledProfile = offer.skilled_profiles || {};
   const isMyOffer      = offer.skilled_user_id === currentUserId;
@@ -52,17 +54,17 @@ export default function OfferCard({
         {isPostOwner && !isMyOffer && (
           <>
             {!hasActiveOrder && offer.status === 'pending' && (
-              <Button title="Order" onPress={() => onOrder(offer)} size="sm" icon="checkmark-circle-outline" style={{ flex: 1, marginRight: spacing.sm }} />
+              <Button title={t('offers.order')} onPress={() => onOrder(offer)} size="sm" icon="checkmark-circle-outline" style={{ flex: 1, marginRight: spacing.sm }} />
             )}
-            <Button title="Chat" onPress={() => onStartChat(offer)} variant="secondary" size="sm" icon="chatbubble-outline" style={{ flex: 1 }} />
+            <Button title={t('offers.chat')} onPress={() => onStartChat(offer)} variant="secondary" size="sm" icon="chatbubble-outline" style={{ flex: 1 }} />
           </>
         )}
 
         {/* Skilled user sees edit/delete only on their own pending offer */}
         {isMyOffer && offer.status === 'pending' && (
           <>
-            <Button title="Edit" onPress={() => onEdit(offer)} variant="outline" size="sm" icon="pencil-outline" style={{ flex: 1, marginRight: spacing.sm }} />
-            <Button title="Delete" onPress={() => onDelete(offer)} variant="ghost" size="sm" icon="trash-outline" style={{ flex: 1 }} />
+            <Button title={t('common.edit')} onPress={() => onEdit(offer)} variant="outline" size="sm" icon="pencil-outline" style={{ flex: 1, marginRight: spacing.sm }} />
+            <Button title={t('common.delete')} onPress={() => onDelete(offer)} variant="ghost" size="sm" icon="trash-outline" style={{ flex: 1 }} />
           </>
         )}
       </View>

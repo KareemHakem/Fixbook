@@ -13,6 +13,7 @@ import { createNavigationContainerRef } from '@react-navigation/native';
 
 
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../context/LanguageContext';
 import { LoadingSpinner } from '../components/common';
 
 // Auth
@@ -70,6 +71,7 @@ function AuthStack() {
 
 // ── Normal User Tab Navigator ─────────────────────────────────────────────────
 function NormalTabs() {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -90,16 +92,17 @@ function NormalTabs() {
         },
       })}
     >
-      <Tab.Screen name="PostsTab"   component={PostsListScreen}  options={{ title: 'Jobs',    headerTitle: 'Job Board' }} />
-      <Tab.Screen name="OrdersTab"  component={OrdersListScreen} options={{ title: 'Orders' }} />
-      <Tab.Screen name="ChatsTab"   component={ChatListScreen}   options={{ title: 'Chats' }} />
-      <Tab.Screen name="ProfileTab" component={ProfileScreen}    options={{ title: 'Profile' }} />
+      <Tab.Screen name="PostsTab"   component={PostsListScreen}  options={{ title: t('nav.jobs'),    headerTitle: t('nav.jobBoard') }} />
+      <Tab.Screen name="OrdersTab"  component={OrdersListScreen} options={{ title: t('nav.orders') }} />
+      <Tab.Screen name="ChatsTab"   component={ChatListScreen}   options={{ title: t('nav.chats') }} />
+      <Tab.Screen name="ProfileTab" component={ProfileScreen}    options={{ title: t('nav.profile') }} />
     </Tab.Navigator>
   );
 }
 
 // ── Skilled User Tab Navigator ────────────────────────────────────────────────
 function SkilledTabs() {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -120,16 +123,17 @@ function SkilledTabs() {
         },
       })}
     >
-      <Tab.Screen name="BrowseTab"   component={PostsListScreen}  options={{ title: 'Browse',  headerTitle: 'Find Jobs' }} />
-      <Tab.Screen name="OrdersTab2"  component={OrdersListScreen} options={{ title: 'Orders' }} />
-      <Tab.Screen name="ChatsTab2"   component={ChatListScreen}   options={{ title: 'Chats' }} />
-      <Tab.Screen name="ProfileTab2" component={ProfileScreen}    options={{ title: 'Profile' }} />
+      <Tab.Screen name="BrowseTab"   component={PostsListScreen}  options={{ title: t('nav.browse'),  headerTitle: t('nav.findJobs') }} />
+      <Tab.Screen name="OrdersTab2"  component={OrdersListScreen} options={{ title: t('nav.orders') }} />
+      <Tab.Screen name="ChatsTab2"   component={ChatListScreen}   options={{ title: t('nav.chats') }} />
+      <Tab.Screen name="ProfileTab2" component={ProfileScreen}    options={{ title: t('nav.profile') }} />
     </Tab.Navigator>
   );
 }
 
 // ── Admin Tab Navigator ───────────────────────────────────────────────────────
 function AdminTabs() {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -148,27 +152,29 @@ function AdminTabs() {
         },
       })}
     >
-      <Tab.Screen name="AdminHome"    component={AdminStack}   options={{ headerShown: false, title: 'Dashboard' }} />
-      <Tab.Screen name="AdminProfile" component={ProfileScreen} options={{ title: 'Profile' }} />
+      <Tab.Screen name="AdminHome"    component={AdminStack}   options={{ headerShown: false, title: t('nav.dashboard') }} />
+      <Tab.Screen name="AdminProfile" component={ProfileScreen} options={{ title: t('nav.profile') }} />
     </Tab.Navigator>
   );
 }
 
 // ── Admin Stack (nested in tabs so we can navigate to sub-screens) ────────────
 function AdminStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator screenOptions={screenOptions}>
-      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: 'Dashboard' }} />
-      <Stack.Screen name="AdminUsers"     component={AdminUsersScreen}     options={{ title: 'Manage Users' }} />
-      <Stack.Screen name="AdminPosts"     component={AdminPostsScreen}     options={{ title: 'Manage Posts' }} />
-      <Stack.Screen name="AdminOrders"    component={AdminOrdersScreen}    options={{ title: 'Manage Orders' }} />
-      <Stack.Screen name="AdminReviews"   component={AdminReviewsScreen}   options={{ title: 'Manage Reviews' }} />
+      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: t('nav.dashboard') }} />
+      <Stack.Screen name="AdminUsers"     component={AdminUsersScreen}     options={{ title: t('nav.manageUsers') }} />
+      <Stack.Screen name="AdminPosts"     component={AdminPostsScreen}     options={{ title: t('nav.managePosts') }} />
+      <Stack.Screen name="AdminOrders"    component={AdminOrdersScreen}    options={{ title: t('nav.manageOrders') }} />
+      <Stack.Screen name="AdminReviews"   component={AdminReviewsScreen}   options={{ title: t('nav.manageReviews') }} />
     </Stack.Navigator>
   );
 }
 
 // ── Main App Stack (wraps tabs + modal screens) ───────────────────────────────
 function MainStack({ role }) {
+  const { t } = useTranslation();
   const TabNav = role === 'admin' ? AdminTabs : role === 'skilled' ? SkilledTabs : NormalTabs;
 
   return (
@@ -176,13 +182,13 @@ function MainStack({ role }) {
       <Stack.Screen name="Tabs" component={TabNav} options={{ headerShown: false }} />
 
       {/* Shared screens accessible from any tab */}
-      <Stack.Screen name="PostDetail"   component={PostDetailScreen}   options={{ title: 'Job Details' }} />
-      <Stack.Screen name="CreatePost"   component={CreatePostScreen}   options={({ route }) => ({ title: route.params?.post ? 'Edit Post' : 'Post a Job' })} />
-      <Stack.Screen name="ChatDetail"   component={ChatDetailScreen}   options={{ title: 'Chat' }} />
-      <Stack.Screen name="CreateOrder"  component={CreateOrderScreen}  options={{ title: 'Confirm Order' }} />
-      <Stack.Screen name="LeaveReview"  component={LeaveReviewScreen}  options={{ title: 'Leave a Review' }} />
-      <Stack.Screen name="PostsList"    component={PostsListScreen}    options={{ title: 'Job Board' }} />
-      <Stack.Screen name="Orders"       component={OrdersListScreen}   options={{ title: 'My Orders' }} />
+      <Stack.Screen name="PostDetail"   component={PostDetailScreen}   options={{ title: t('nav.jobDetails') }} />
+      <Stack.Screen name="CreatePost"   component={CreatePostScreen}   options={({ route }) => ({ title: route.params?.post ? t('nav.editPost') : t('nav.postAJob') })} />
+      <Stack.Screen name="ChatDetail"   component={ChatDetailScreen}   options={{ title: t('nav.chat') }} />
+      <Stack.Screen name="CreateOrder"  component={CreateOrderScreen}  options={{ title: t('nav.confirmOrder') }} />
+      <Stack.Screen name="LeaveReview"  component={LeaveReviewScreen}  options={{ title: t('nav.leaveAReview') }} />
+      <Stack.Screen name="PostsList"    component={PostsListScreen}    options={{ title: t('nav.jobBoard') }} />
+      <Stack.Screen name="Orders"       component={OrdersListScreen}   options={{ title: t('nav.myOrders') }} />
     </Stack.Navigator>
   );
 }
