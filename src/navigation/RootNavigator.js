@@ -33,6 +33,7 @@ import { LeaveReviewScreen }   from '../screens/normal/LeaveReviewScreen';
 import {
   AdminDashboardScreen, AdminUsersScreen,
   AdminPostsScreen, AdminOrdersScreen, AdminReviewsScreen,
+  AdminOrderDetailScreen,
 } from '../screens/admin/AdminScreens';
 
 import { colors } from '../theme/colors';
@@ -163,11 +164,12 @@ function AdminStack() {
   const { t } = useTranslation();
   return (
     <Stack.Navigator screenOptions={screenOptions}>
-      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: t('nav.dashboard') }} />
-      <Stack.Screen name="AdminUsers"     component={AdminUsersScreen}     options={{ title: t('nav.manageUsers') }} />
-      <Stack.Screen name="AdminPosts"     component={AdminPostsScreen}     options={{ title: t('nav.managePosts') }} />
-      <Stack.Screen name="AdminOrders"    component={AdminOrdersScreen}    options={{ title: t('nav.manageOrders') }} />
-      <Stack.Screen name="AdminReviews"   component={AdminReviewsScreen}   options={{ title: t('nav.manageReviews') }} />
+      <Stack.Screen name="AdminDashboard"    component={AdminDashboardScreen}    options={{ title: t('nav.dashboard') }} />
+      <Stack.Screen name="AdminUsers"       component={AdminUsersScreen}       options={{ title: t('nav.manageUsers') }} />
+      <Stack.Screen name="AdminPosts"       component={AdminPostsScreen}       options={{ title: t('nav.managePosts') }} />
+      <Stack.Screen name="AdminOrders"      component={AdminOrdersScreen}      options={{ title: t('nav.manageOrders') }} />
+      <Stack.Screen name="AdminReviews"     component={AdminReviewsScreen}     options={{ title: t('nav.manageReviews') }} />
+      <Stack.Screen name="AdminOrderDetail" component={AdminOrderDetailScreen} options={{ title: t('nav.orderDetail') }} />
     </Stack.Navigator>
   );
 }

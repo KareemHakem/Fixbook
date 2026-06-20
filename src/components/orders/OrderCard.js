@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card, Badge, Avatar, Button } from '../common';
 import { colors } from '../../theme/colors';
 import { typography, spacing, radius } from '../../theme/index';
+import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../context/LanguageContext';
 
 export default function OrderCard({
@@ -18,6 +19,11 @@ export default function OrderCard({
   const isSkilled = viewAs === 'skilled';
   const otherUser = isSkilled ? order.normal_user : order.skilled_user;
   const price     = order.offers?.price;
+   const { user, profile } = useAuth();
+   console.log('OrderCard user/profile', user.id);
+   console.log('OrderCard order', order.id);
+  //  id=eq.2189e221-a62d-46a1-8851-187192f5a593&select=*
+
 
   return (
     <Card style={styles.card}>

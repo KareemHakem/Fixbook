@@ -29,7 +29,7 @@ export const getActiveOrderForPost = async (postId, normalUserId) => {
     .select('*')
     .eq('post_id', postId)
     .eq('normal_user_id', normalUserId)
-    .not('status', 'in', '("declined","cancelled")')
+    .not('status', 'in', '("declined","cancelled","completed")')
     .maybeSingle();
   return { data, error };
 };
@@ -82,6 +82,22 @@ export const updateOrderStatus = async (orderId, status) => {
   }
 
   return { data, error: null };
+};
+
+// ── Admin: get single order with full detail ───────────────────────────────
+export const getAdminOrderDetail = async (orderId) => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      posts(id, title, description),
+      offers(price, description),
+      normal_user:profiles!orders_normal_user_id_fkey(id, full_name, avatar_url, phone),
+      skilled_user:profiles!orders_skilled_user_id_fkey(id, full_name, avatar_url, phone, skilled_profiles(rating, review_count))
+    `)
+    .eq('id', orderId)
+    .single();
+  return { data, error };
 };
 
 // ── Admin: get all orders ──────────────────────────────────────────────────

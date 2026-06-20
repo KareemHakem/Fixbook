@@ -18,12 +18,13 @@ const CATEGORY_ICONS = {
   'Tiling':            'grid-outline',
   'Welding':           'flame-outline',
 };
+// 8c59b18b-8627-4c1c-9886-47af189624cc
 
 export default function PostCard({ post, onPress }) {
   const { t } = useTranslation();
   const icon = CATEGORY_ICONS[post.category] || 'construct-outline';
   const count = Math.max(0, post.offers_count || 0);
-
+console.log(`PostCard for post ${post.id} has offers_count:` );
   return (
     <Card onPress={onPress} style={styles.card}>
       {/* Image */}
@@ -54,6 +55,7 @@ export default function PostCard({ post, onPress }) {
         <View style={styles.footerLeft}>
           <Avatar uri={post.profiles?.avatar_url} name={post.profiles?.full_name} size={22} />
           <Text style={styles.ownerText}>{post.profiles?.full_name}</Text>
+           
         </View>
         <View style={styles.offersBadge}>
           <Ionicons name="chatbubble-outline" size={13} color={colors.info} />

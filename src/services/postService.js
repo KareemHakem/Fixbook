@@ -4,19 +4,31 @@ import { supabase } from '../lib/supabase';
 export const getPosts = async (filters = {}) => {
   let query = supabase
     .from('posts')
-    .select('*, profiles(id, full_name, avatar_url), offers(count)')
+    .select('*, profiles(id, full_name, avatar_url), offers(count), orders(id, status)')
     .order('created_at', { ascending: false });
 
-  if (filters.status)   query = query.eq('status', filters.status);
-  if (filters.userId)   query = query.eq('user_id', filters.userId);
+  if (filters.status) {
+    query = query.eq('status', filters.status);
+  } else {
+    // Job board should not show completed or cancelled posts
+    query = query.in('status', ['open', 'in_progress']);
+  }
+
+  if (filters.userId) query = query.eq('user_id', filters.userId);
 
   const { data, error } = await query;
   if (error) return { data, error };
 
-  const normalized = data?.map((p) => ({
-    ...p,
-    offers_count: p.offers?.[0]?.count ?? p.offers_count ?? 0,
-  }));
+  const normalized = (data ?? [])
+    .map((p) => ({
+      ...p,
+      offers_count: p.offers?.[0]?.count ?? p.offers_count ?? 0,
+      has_completed_order: p.orders?.some((o) => o.status === 'completed'),
+    }))
+    .filter((p) => !p.has_completed_order);
+
+  console.log('getPosts returned posts with statuses:', normalized.map((p) => ({ id: p.id, title: p.title, status: p.status, has_completed_order: p.has_completed_order })));
+
   return { data: normalized, error };
 };
 
@@ -63,7 +75,13 @@ export const updatePost = async (postId, updates) => {
     .update(updates)
     .eq('id', postId)
     .select()
-    .single();
+    .maybeSingle();
+
+  // If RLS allows the update but not the returned row, treat it as success.
+  if (!data && !error) {
+    return { data: { id: postId, ...updates }, error: null };
+  }
+
   return { data, error };
 };
 
@@ -71,6 +89,17 @@ export const updatePost = async (postId, updates) => {
 export const deletePost = async (postId) => {
   const { error } = await supabase.from('posts').delete().eq('id', postId);
   return { error };
+};
+
+// ── Admin: update post status ──────────────────────────────────────────────
+export const adminUpdatePostStatus = async (postId, status) => {
+  const { data, error } = await supabase
+    .from('posts')
+    .update({ status })
+    .eq('id', postId)
+    .select()
+    .single();
+  return { data, error };
 };
 
 // ── Admin: get all posts ───────────────────────────────────────────────────

@@ -49,7 +49,9 @@ export function CreateOrderScreen({ route, navigation }) {
       scheduledTime:  isoTime(time),
       contactPhone:   phone.trim(),
       location:       location.trim(),
+      status:         'ordered',
     });
+    
 
     if (err) {
       // Unique constraint violation = active order already exists

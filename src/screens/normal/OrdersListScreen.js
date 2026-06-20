@@ -10,6 +10,7 @@ import { LoadingSpinner, EmptyState } from '../../components/common';
 import {
   getNormalUserOrders, getSkilledUserOrders, updateOrderStatus,
 } from '../../services/orderService';
+import { updatePost } from '../../services/postService';
 import { colors } from '../../theme/colors';
 import { spacing, radius, typography } from '../../theme/index';
 
@@ -21,6 +22,8 @@ export function OrdersListScreen({ navigation }) {
   const [tab,       setTab]       = useState('active');   // active | completed
   const [loading,   setLoading]   = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  
 
   const load = useCallback(async () => {
     const fetchFn = isSkilled ? getSkilledUserOrders : getNormalUserOrders;
@@ -49,6 +52,16 @@ export function OrdersListScreen({ navigation }) {
     if (error) {
       Alert.alert(t('orders.couldNotUpdate'), error.message || t('common.unknownError'));
       return;
+    }
+    // When marking order as completed, also update the associated post status to ensure it's removed from job board
+    if (status === 'completed') {
+      console.log('Completing order, updating post:', order.post_id, 'to status: completed');
+      const { error: postError } = await updatePost(order.post_id, { status: 'completed' });
+      if (postError) {
+        console.error('Failed to update post status:', postError);
+      } else {
+        console.log('Post status updated successfully to completed');
+      }
     }
     load();
   };

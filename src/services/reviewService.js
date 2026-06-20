@@ -36,8 +36,9 @@ export const getAllReviews = async () => {
     .from('reviews')
     .select(`
       *,
-      reviewer:profiles!reviews_normal_user_id_fkey(full_name),
-      skilled_user:profiles!reviews_skilled_user_id_fkey(full_name)
+      reviewer:profiles!reviews_normal_user_id_fkey(full_name, avatar_url),
+      skilled_user:profiles!reviews_skilled_user_id_fkey(full_name),
+      orders(posts(title))
     `)
     .order('created_at', { ascending: false });
   return { data, error };
