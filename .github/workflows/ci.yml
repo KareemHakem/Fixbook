@@ -78,7 +78,7 @@ jobs:
 
       - name: Check for syntax errors
         run: |
-          npx babel App.js src --extensions ".js" --out-dir /tmp/babel-check --quiet
+          npm exec --yes --package=@babel/cli -- babel App.js src --extensions ".js" --out-dir /tmp/babel-check --quiet
 
   docker:
     name: Docker build
