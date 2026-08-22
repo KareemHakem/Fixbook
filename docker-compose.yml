@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: ./backend
+      target: development
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - db
+      - redis
+    networks:
+      - fixbook
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - fixbook
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: fixbook
+      POSTGRES_USER: fixbook
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - fixbook
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - fixbook
+
+  queue:
+    build:
+      context: ./backend
+      target: development
+    command: php artisan queue:work --sleep=3 --tries=3
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - db
+      - redis
+    networks:
+      - fixbook
+
+volumes:
+  pgdata:
+
+networks:
+  fixbook:
+    driver: bridge
